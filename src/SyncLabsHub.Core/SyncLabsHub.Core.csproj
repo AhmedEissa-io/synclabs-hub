@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- net10.0 for the Hub; netstandard2.0 so net48 Revit/Rhino plugins can link the SAME library. -->
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
+    <RootNamespace>SyncLabsHub.Core</RootNamespace>
+    <AssemblyName>SyncLabsHub.Core</AssemblyName>
+    <Description>Shared licensing, catalog and Supabase client for the SyncLabs Hub and its tools.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>

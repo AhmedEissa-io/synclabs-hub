@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <Company>SyncLabs</Company>
+    <Product>SyncLabs Hub</Product>
+    <Copyright>(c) SyncLabs</Copyright>
+  </PropertyGroup>
+</Project>

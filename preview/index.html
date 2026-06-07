@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SyncLabs Hub</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:          #141414;
+    --surface:     #1c1c1c;
+    --surface2:    #222222;
+    --border:      rgba(255,255,255,0.07);
+    --border2:     rgba(255,255,255,0.04);
+    --text:        #e8e8e8;
+    --text-sub:    rgba(232,232,232,0.45);
+    --text-dim:    rgba(232,232,232,0.25);
+    --accent:      #3b82f6;
+    --accent-dim:  rgba(59,130,246,0.12);
+    --hover:       rgba(255,255,255,0.04);
+    --active:      rgba(255,255,255,0.07);
+    --radius:      7px;
+  }
+
+  body {
+    font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-size: 13px;
+  }
+
+  /* ── Titlebar ── */
+  .titlebar {
+    height: 42px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    flex-shrink: 0;
+    user-select: none;
+  }
+  .titlebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13px;
+    letter-spacing: 0.2px;
+  }
+  .titlebar-brand-icon {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .titlebar-brand-icon svg { width: 18px; height: 18px; color: var(--text); }
+  .brand-name { font-weight: 600; color: var(--text); }
+  .brand-sub  { color: var(--text-sub); font-weight: 400; }
+
+  .titlebar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .tb-btn {
+    background: none; border: none;
+    color: var(--text-sub);
+    width: 32px; height: 28px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.12s, color 0.12s;
+  }
+  .tb-btn:hover { background: var(--hover); color: var(--text); }
+  .tb-btn svg { width: 15px; height: 15px; }
+
+  .user-chip {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px 4px 7px;
+    margin-left: 6px;
+    cursor: default;
+  }
+  .user-avatar {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .user-avatar svg { width: 12px; height: 12px; color: var(--text-sub); }
+  .user-name { font-size: 12px; font-weight: 500; color: var(--text); }
+  .user-plan {
+    font-size: 10px; font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.4px;
+  }
+
+  /* ── Main layout ── */
+  .layout { display: flex; flex: 1; overflow: hidden; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 220px; flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    display: flex; flex-direction: column;
+    padding: 10px 8px 10px;
+  }
+  .nav { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--text-sub);
+    font-size: 13px;
+    font-weight: 400;
+    transition: background 0.12s, color 0.12s;
+  }
+  .nav-item:hover { background: var(--hover); color: var(--text); }
+  .nav-item.active { background: var(--active); color: var(--text); font-weight: 500; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .sidebar-sep { height: 1px; background: var(--border); margin: 8px 2px; }
+
+  /* ── Content ── */
+  .content {
+    flex: 1; overflow-y: auto; padding: 28px 24px;
+    background: var(--bg);
+  }
+  .content::-webkit-scrollbar { width: 5px; }
+  .content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 3px; }
+
+  /* Page header */
+  .page-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+  .page-sub { font-size: 12px; color: var(--text-sub); margin-top: 3px; }
+
+  .search {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 7px 12px;
+    color: var(--text-sub);
+    font-size: 12px;
+    width: 220px;
+  }
+  .search svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  /* Section */
+  .section { margin-bottom: 32px; }
+  .section-header {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.9px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border2);
+  }
+  .grid { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  /* ── Card ── */
+  .card {
+    width: 234px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex; flex-direction: column;
+    transition: border-color 0.15s, background 0.15s;
+    cursor: default;
+  }
+  .card:hover { border-color: rgba(255,255,255,0.11); background: var(--surface2); }
+  .card.locked { opacity: 0.55; }
+  .card.locked:hover { opacity: 0.7; }
+
+  .card-top {
+    display: flex; align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .card-icon {
+    width: 34px; height: 34px; border-radius: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-icon svg { width: 17px; height: 17px; color: var(--text-sub); }
+  .card-status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .dot-active   { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.4); }
+  .dot-expiring { background: #f59e0b; box-shadow: 0 0 6px rgba(245,158,11,0.4); }
+  .dot-locked   { background: rgba(255,255,255,0.15); }
+
+  .card-name {
+    font-size: 13px; font-weight: 600;
+    letter-spacing: -0.1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .card-version { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+  .card-desc {
+    font-size: 11.5px; color: var(--text-sub);
+    line-height: 1.55; margin-top: 8px; flex: 1;
+  }
+
+  .card-meta {
+    display: flex; align-items: center; gap: 5px;
+    margin-top: 12px; margin-bottom: 10px;
+  }
+  .tag {
+    font-size: 10px; font-weight: 500;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    letter-spacing: 0.2px;
+  }
+  .tag-warn {
+    color: #d97706;
+    background: rgba(217,119,6,0.08);
+    border-color: rgba(217,119,6,0.18);
+  }
+
+  .card-btn {
+    width: 100%; padding: 7px 10px;
+    border-radius: 5px; border: 1px solid transparent;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    text-align: center;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: transparent;
+  }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-sub);
+    border-color: var(--border);
+  }
+  .btn-ghost:hover { background: var(--hover); color: var(--text); border-color: rgba(255,255,255,0.12); }
+  .btn-muted {
+    background: var(--surface2);
+    color: var(--text-sub);
+    border-color: var(--border);
+    cursor: default;
+  }
+
+  /* ── Statusbar ── */
+  .statusbar {
+    height: 28px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 0;
+    flex-shrink: 0;
+  }
+  .sb-item {
+    font-size: 11px; color: var(--text-dim);
+    padding: 0 12px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .sb-item:first-child { padding-left: 0; }
+  .sb-sep { width: 1px; height: 12px; background: var(--border); }
+  .sb-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+  .sb-right { margin-left: auto; }
+</style>
+</head>
+<body>
+
+<!-- Titlebar -->
+<div class="titlebar">
+  <div class="titlebar-brand">
+    <div class="titlebar-brand-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 6h16M4 10h16M4 14h10M4 18h7"/>
+        <circle cx="19" cy="16" r="3"/>
+        <path d="M21.5 18.5L23 20"/>
+      </svg>
+    </div>
+    <span class="brand-name">SyncLabs</span><span class="brand-sub">&nbsp;Hub</span>
+  </div>
+
+  <div class="titlebar-right">
+    <!-- Download -->
+    <button class="tb-btn" title="Check for updates">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3v13M7 11l5 5 5-5"/><path d="M5 20h14"/>
+      </svg>
+    </button>
+    <!-- Refresh -->
+    <button class="tb-btn" title="Refresh">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+      </svg>
+    </button>
+    <!-- User -->
+    <div class="user-chip">
+      <div class="user-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+      </div>
+      <span class="user-name">Ahmed Eissa</span>
+      <span class="user-plan">PRO</span>
+    </div>
+  </div>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <nav class="nav">
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        My Tools
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        Store
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <path d="M2 10h20"/>
+        </svg>
+        My Licenses
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v13M7 11l5 5 5-5"/>
+          <path d="M5 20h14"/>
+        </svg>
+        Updates
+      </div>
+    </nav>
+
+    <div class="sidebar-sep"></div>
+
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      Settings
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <div class="page-title">My Tools</div>
+        <div class="page-sub">2 of 4 tools licensed</div>
+      </div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        Search tools…
+      </div>
+    </div>
+
+    <!-- Licensed -->
+    <div class="section">
+      <div class="section-header">Licensed</div>
+      <div class="grid">
+
+        <div class="card">
+          <div class="card-top">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+              </svg>
+            </div>
+            <div class="card-status-dot dot-active"></div>
+          </div>
+          <div class="card-name">Dynamo Batch Processor</div>
+          <div class="card-version">v1.2.0</div>
+          <div class="card-desc">Run multiple Dynamo graphs in sequence with full parameter control.</div>
+          <div class="card-meta">
+            <span class="tag">Revit Plugin</span>
+            <span class="tag">Active</span>
+          </div>
+          <button class="card-btn btn-muted">Installed in Revit</button>
+        </div>
+
+        <div class="card">
+          <div class="card-top">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16v4H4z"/><path d="M4 12h16v4H4z"/><path d="M4 8h16"/><path d="M4 16h16"/>
+              </svg>
+            </div>
+            <div class="card-status-dot dot-expiring"></div>
+          </div>
+          <div class="card-name">Parameter Sync</div>
+          <div class="card-version">v2.0.1</div>
+          <div class="card-desc">Sync shared parameters across multiple Revit models automatically.</div>
+          <div class="card-meta">
+            <span class="tag">Desktop App</span>
+            <span class="tag tag-warn">Expires in 5 days</span>
+          </div>
+          <button class="card-btn btn-primary">Launch</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Available -->
+    <div class="section">
+      <div class="section-header">Available to Unlock</div>
+      <div class="grid">
+
+        <div class="card locked">
+          <div class="card-top">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <div class="card-status-dot dot-locked"></div>
+          </div>
+          <div class="card-name">Grasshopper Automation</div>
+          <div class="card-version">v1.0.0</div>
+          <div class="card-desc">Generate Grasshopper definitions from natural language prompts.</div>
+          <div class="card-meta">
+            <span class="tag">Rhino Plugin</span>
+          </div>
+          <button class="card-btn btn-ghost">Unlock — $49 / mo</button>
+        </div>
+
+        <div class="card locked">
+          <div class="card-top">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+              </svg>
+            </div>
+            <div class="card-status-dot dot-locked"></div>
+          </div>
+          <div class="card-name">Sheet Manager Pro</div>
+          <div class="card-version">v1.1.0</div>
+          <div class="card-desc">Bulk rename, manage, and export Revit sheets across projects.</div>
+          <div class="card-meta">
+            <span class="tag">Revit Plugin</span>
+          </div>
+          <button class="card-btn btn-ghost">Unlock — $29 / mo</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Statusbar -->
+<div class="statusbar">
+  <div class="sb-item"><span class="sb-dot"></span> Connected</div>
+  <div class="sb-sep"></div>
+  <div class="sb-item">Supabase · Online</div>
+  <div class="sb-sep"></div>
+  <div class="sb-item">Last sync: just now</div>
+  <div class="sb-item sb-right">Hub v1.0.0</div>
+</div>
+
+</body>
+</html>
