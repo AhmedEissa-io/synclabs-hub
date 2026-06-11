@@ -4,7 +4,7 @@
     "latestVersion": "1.0.0",
     "releaseNotesUrl": "https://github.com/AhmedEissa-io/synclabs-hub/releases/tag/synclabs-platform-v1.0.0",
     "downloadUrl": "https://github.com/AhmedEissa-io/synclabs-hub/releases/download/synclabs-platform-v1.0.0/SyncLabs.Platform-1.0.0.zip",
-    "sha256": "ab08d0c1b074e18339c81a15f70d3e87b8862427c43e3095878225317fe681a7"
+    "sha256": "2302877d075022b4c4dc8bc05b6005e5fa12c52b655ac99694646381fcc548d9"
   },
   "revit-level-viewer": {
     "name": "Revit Level Viewer",
