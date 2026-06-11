@@ -3,12 +3,14 @@
     "name": "SyncLabs Platform",
     "latestVersion": "1.0.0",
     "releaseNotesUrl": "https://github.com/AhmedEissa-io/synclabs-hub/releases/tag/synclabs-platform-v1.0.0",
-    "downloadUrl": "https://github.com/AhmedEissa-io/synclabs-hub/releases/download/synclabs-platform-v1.0.0/SyncLabs.Platform-1.0.0.zip"
+    "downloadUrl": "https://github.com/AhmedEissa-io/synclabs-hub/releases/download/synclabs-platform-v1.0.0/SyncLabs.Platform-1.0.0.zip",
+    "sha256": "ab08d0c1b074e18339c81a15f70d3e87b8862427c43e3095878225317fe681a7"
   },
   "revit-level-viewer": {
     "name": "Revit Level Viewer",
     "latestVersion": "1.0.0",
     "releaseNotesUrl": "https://github.com/AhmedEissa-io/synclabs-hub/releases/tag/revit-level-viewer-v1.0.0",
-    "downloadUrl": "https://github.com/AhmedEissa-io/synclabs-hub/releases/download/revit-level-viewer-v1.0.0/RevitLevelViewer-1.0.0.zip"
+    "downloadUrl": "https://github.com/AhmedEissa-io/synclabs-hub/releases/download/revit-level-viewer-v1.0.0/RevitLevelViewer-1.0.0.zip",
+    "sha256": "960d25ab04f461ddde750e812890df15e14897074e10c50cae376a9c8f908fba"
   }
 }
